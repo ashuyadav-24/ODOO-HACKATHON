@@ -8,6 +8,8 @@ from app.api.v1.assets import router as assets_router
 from app.api.v1.allocations import router as allocations_router
 from app.api.v1.maintenance import router as maintenance_router
 from app.api.v1.audits import router as audits_router
+from app.api.v1.dashboard import router as dashboard_router
+from app.api.v1.bookings import router as bookings_router
 
 api_router = APIRouter()
 
@@ -34,3 +36,6 @@ api_router.include_router(assets_router)
 api_router.include_router(allocations_router)
 api_router.include_router(maintenance_router)
 api_router.include_router(audits_router)
+api_router.include_router(dashboard_router)
+api_router.include_router(bookings_router)
+
