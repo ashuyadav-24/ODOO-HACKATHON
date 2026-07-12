@@ -115,3 +115,63 @@ export async function deleteAsset(id: string) {
 
   if (!res.ok) throw new Error("Delete failed");
 }
+// ---------------- Dashboard ----------------
+
+export async function getDashboardSummary() {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/dashboard/summary`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.detail);
+  }
+
+  return result;
+}
+
+export async function getRecentActivities() {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_URL}/dashboard/recent-activities`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.detail);
+  }
+
+  return result;
+}
+
+// ---------------- Current User ----------------
+
+export async function getCurrentUser() {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/users/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.detail || "Failed to fetch user");
+  }
+
+  return result;
+}

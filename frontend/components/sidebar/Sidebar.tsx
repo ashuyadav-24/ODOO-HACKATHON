@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Building2,
@@ -72,11 +72,18 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.replace("/login");
+  };
 
   return (
     <aside className="flex h-screen w-72 flex-col border-r border-slate-800 bg-slate-950">
 
       {/* Logo */}
+
       <div className="flex items-center gap-3 border-b border-slate-800 p-6">
 
         <div className="rounded-xl bg-emerald-500 p-3">
@@ -114,7 +121,6 @@ export default function Sidebar() {
               }`}
             >
               <Icon size={20} />
-
               <span>{item.title}</span>
             </Link>
           );
@@ -122,11 +128,14 @@ export default function Sidebar() {
 
       </nav>
 
-      {/* Bottom */}
+      {/* Logout */}
 
       <div className="border-t border-slate-800 p-4">
 
-        <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-400 transition hover:bg-red-500 hover:text-white">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-400 transition hover:bg-red-500 hover:text-white"
+        >
           <LogOut size={20} />
 
           Logout
