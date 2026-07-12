@@ -175,3 +175,28 @@ export async function getCurrentUser() {
 
   return result;
 }
+
+
+// ===================== Maintenance =====================
+
+export const getMaintenance = async () => {
+  const res = await api.get("/maintenance");
+  return res.data;
+};
+
+export const createMaintenance = async (data: {
+  asset_id: string;
+  assigned_to: string;
+  issue: string;
+  description: string;
+  priority: string;
+  scheduled_date: string;
+}) => {
+  const res = await api.post("/maintenance", data);
+  return res.data;
+};
+
+export const deleteMaintenance = async (id: string) => {
+  const res = await api.delete(`/maintenance/${id}`);
+  return res.data;
+};
