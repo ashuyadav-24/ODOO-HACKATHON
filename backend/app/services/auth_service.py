@@ -20,7 +20,6 @@ class AuthService:
         user_data = user.model_dump()
 
         password = user_data.pop("password")
-
         user_data["hashed_password"] = hash_password(password)
 
         user_data["role"] = "employee"
