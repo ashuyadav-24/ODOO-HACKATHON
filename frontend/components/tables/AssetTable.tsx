@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { getAssets } from "@/services/api";
 import Link from "next/link";
+import { deleteAsset } from "@/services/api";
 
 interface Asset {
   _id: string;
@@ -46,6 +47,18 @@ export default function AssetTable() {
       </div>
     );
   }
+  const handleDelete = async (id: string) => {
+  if (!confirm("Delete this asset?")) return;
+
+  try {
+    await deleteAsset(id);
+    alert("Asset deleted");
+
+    window.location.reload();
+  } catch (err) {
+    alert("Delete failed");
+  }
+};
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-lg">
@@ -124,9 +137,12 @@ export default function AssetTable() {
                         <Edit size={18} />
                       </button>
 
-                      <button className="text-red-400">
-                        <Trash2 size={18} />
-                      </button>
+                      <button
+  onClick={() => handleDelete(asset._id)}
+  className="text-red-400 hover:text-red-300"
+>
+  <Trash2 size={18} />
+</button>
                     </div>
                   </td>
                 </tr>
