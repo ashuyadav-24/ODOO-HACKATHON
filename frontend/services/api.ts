@@ -176,10 +176,7 @@ export async function getCurrentUser() {
   return result;
 }
 
-
 // ===================== Maintenance =====================
-
-// ---------------- Maintenance ----------------
 
 export async function getMaintenance() {
   const token = localStorage.getItem("token");
@@ -241,6 +238,29 @@ export async function deleteMaintenance(id: string) {
 
   if (!response.ok) {
     throw new Error(result.detail || "Failed to delete maintenance");
+  }
+
+  return result;
+}
+
+// ===================== Audit =====================
+
+export async function getAuditLogs(userId: string) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_URL}/audits/user/${userId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.detail || "Failed to fetch audit logs");
   }
 
   return result;
