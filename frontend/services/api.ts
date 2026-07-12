@@ -179,24 +179,69 @@ export async function getCurrentUser() {
 
 // ===================== Maintenance =====================
 
-export const getMaintenance = async () => {
-  const res = await api.get("/maintenance");
-  return res.data;
-};
+// ---------------- Maintenance ----------------
 
-export const createMaintenance = async (data: {
+export async function getMaintenance() {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/maintenance`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.detail || "Failed to fetch maintenance");
+  }
+
+  return result;
+}
+
+export async function createMaintenance(data: {
   asset_id: string;
   assigned_to: string;
   issue: string;
   description: string;
   priority: string;
   scheduled_date: string;
-}) => {
-  const res = await api.post("/maintenance", data);
-  return res.data;
-};
+}) {
+  const token = localStorage.getItem("token");
 
-export const deleteMaintenance = async (id: string) => {
-  const res = await api.delete(`/maintenance/${id}`);
-  return res.data;
-};
+  const response = await fetch(`${API_URL}/maintenance`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.detail || "Failed to create maintenance");
+  }
+
+  return result;
+}
+
+export async function deleteMaintenance(id: string) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/maintenance/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.detail || "Failed to delete maintenance");
+  }
+
+  return result;
+}
