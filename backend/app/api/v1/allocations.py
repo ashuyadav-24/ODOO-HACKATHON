@@ -50,7 +50,9 @@ async def get_user_allocations(
     user_id: str,
     current_user=Depends(get_current_user),
 ):
-    return await AllocationService.get_by_user(user_id)
+    return await AllocationService.get_by_user(
+        user_id
+    )
 
 
 @router.get("/asset/{asset_id}")
@@ -58,7 +60,9 @@ async def get_asset_allocations(
     asset_id: str,
     current_user=Depends(get_current_user),
 ):
-    return await AllocationService.get_by_asset(asset_id)
+    return await AllocationService.get_by_asset(
+        asset_id
+    )
 
 
 @router.get("/{allocation_id}")
@@ -89,6 +93,7 @@ async def update_allocation(
         return await AllocationService.update(
             allocation_id,
             data,
+            current_user,
         )
 
     except ValueError as e:
@@ -109,6 +114,7 @@ async def return_asset(
         return await AllocationService.return_asset(
             allocation_id,
             data.remarks,
+            current_user,
         )
 
     except ValueError as e:
@@ -126,7 +132,8 @@ async def delete_allocation(
 ):
     try:
         return await AllocationService.delete(
-            allocation_id
+            allocation_id,
+            current_user,
         )
 
     except ValueError as e:
