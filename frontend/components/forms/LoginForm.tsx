@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 import {
   Boxes,
   Mail,
@@ -14,17 +16,54 @@ import {
 } from "lucide-react";
 
 export default function LoginForm() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      localStorage.setItem(
+        "token",
+        response.data.access_token
+      );
+
+      alert("Login Successful");
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      alert(error.response?.data?.detail || "Login Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-slate-950">
 
       {/* LEFT PANEL */}
-      <div className="relative hidden lg:flex overflow-hidden">
+
+      <div className="relative hidden overflow-hidden lg:flex">
 
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-950" />
 
-        <div className="absolute top-20 left-20 h-72 w-72 rounded-full bg-emerald-500/20 blur-[120px]" />
+        <div className="absolute left-20 top-20 h-72 w-72 rounded-full bg-emerald-500/20 blur-[120px]" />
         <div className="absolute bottom-10 right-10 h-80 w-80 rounded-full bg-green-500/10 blur-[140px]" />
 
         <div
@@ -36,7 +75,7 @@ export default function LoginForm() {
           }}
         />
 
-        <div className="relative z-10 flex flex-col justify-between p-16 w-full">
+        <div className="relative z-10 flex w-full flex-col justify-between p-16">
 
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-emerald-500 p-3">
@@ -44,7 +83,10 @@ export default function LoginForm() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-white">AssetFlow</h2>
+              <h2 className="text-2xl font-bold text-white">
+                AssetFlow
+              </h2>
+
               <p className="text-sm text-emerald-200">
                 Enterprise Asset ERP
               </p>
@@ -52,6 +94,7 @@ export default function LoginForm() {
           </div>
 
           <div className="max-w-xl">
+
             <span className="text-sm uppercase tracking-[0.3em] text-emerald-300">
               Welcome Back
             </span>
@@ -63,19 +106,21 @@ export default function LoginForm() {
             </h1>
 
             <p className="mt-6 text-lg leading-8 text-slate-300">
-              Track assets, manage maintenance, approve requests,
-              and monitor your organization's resources from one
-              secure dashboard.
+              Track assets, manage maintenance, approve requests and monitor your
+              organization's resources from one secure dashboard.
             </p>
+
           </div>
 
           <div className="grid grid-cols-2 gap-6">
 
             <div className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-xl">
               <ShieldCheck className="mb-3 text-emerald-400" />
+
               <h3 className="font-semibold text-white">
                 Secure Login
               </h3>
+
               <p className="mt-2 text-sm text-slate-300">
                 Protected authentication for every employee.
               </p>
@@ -83,9 +128,11 @@ export default function LoginForm() {
 
             <div className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-xl">
               <ClipboardList className="mb-3 text-green-400" />
+
               <h3 className="font-semibold text-white">
                 Real-time Access
               </h3>
+
               <p className="mt-2 text-sm text-slate-300">
                 Continue where you left off instantly.
               </p>
@@ -114,7 +161,7 @@ export default function LoginForm() {
 
           </div>
 
-          <form className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
 
             <div>
 
@@ -128,7 +175,10 @@ export default function LoginForm() {
 
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
+                  required
                   className="w-full rounded-xl border border-slate-700 bg-slate-900 py-3 pl-12 pr-4 text-white outline-none focus:border-emerald-500"
                 />
 
@@ -145,8 +195,8 @@ export default function LoginForm() {
                 </label>
 
                 <Link
-                  href="/forgot-password"
-                  className="text-sm text-emerald-400 hover:text-emerald-300"
+                  href="#"
+                  className="text-sm text-emerald-400"
                 >
                   Forgot Password?
                 </Link>
@@ -159,15 +209,16 @@ export default function LoginForm() {
 
                 <input
                   type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  required
                   className="w-full rounded-xl border border-slate-700 bg-slate-900 py-3 pl-12 pr-12 text-white outline-none focus:border-emerald-500"
                 />
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPassword(!showPassword)
-                  }
+                  onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-3.5 text-slate-400"
                 >
                   {showPassword ? (
@@ -181,27 +232,25 @@ export default function LoginForm() {
 
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-slate-400">
 
-              <label className="flex items-center gap-2 text-sm text-slate-400">
+              <input
+                type="checkbox"
+                className="accent-emerald-500"
+              />
 
-                <input
-                  type="checkbox"
-                  className="accent-emerald-500"
-                />
-
-                Remember Me
-
-              </label>
+              Remember Me
 
             </div>
 
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 py-3 font-semibold text-white transition hover:scale-[1.02]">
-
-              Login
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 py-3 font-semibold text-white transition hover:scale-[1.02] disabled:opacity-60"
+            >
+              {loading ? "Logging in..." : "Login"}
 
               <ArrowRight size={18} />
-
             </button>
 
           </form>
@@ -211,7 +260,7 @@ export default function LoginForm() {
             Don't have an account?{" "}
 
             <Link
-              href="/"
+              href="/signup"
               className="font-semibold text-emerald-400 hover:text-emerald-300"
             >
               Create Account
