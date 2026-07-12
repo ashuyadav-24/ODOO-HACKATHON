@@ -5,6 +5,7 @@ from app.api.v1.users import router as users_router
 from app.api.v1.departments import router as department_router
 from app.api.v1.categories import router as categories_router
 from app.api.v1.assets import router as assets_router
+from app.api.v1.allocations import router as allocations_router
 
 api_router = APIRouter()
 
@@ -28,3 +29,4 @@ api_router.include_router(users_router)
 api_router.include_router(department_router)
 api_router.include_router(categories_router)
 api_router.include_router(assets_router)
+api_router.include_router(allocations_router)
