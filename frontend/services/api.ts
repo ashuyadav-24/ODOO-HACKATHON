@@ -103,3 +103,15 @@ export async function getAsset(id: string) {
 
   return response.json();
 }
+export async function deleteAsset(id: string) {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_URL}/assets/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("Delete failed");
+}
