@@ -2,6 +2,7 @@ import React from "react";
 
 interface InputProps {
   label: string;
+  name?: string;
   type?: string;
   placeholder?: string;
   value: string;
@@ -10,6 +11,7 @@ interface InputProps {
 
 export default function Input({
   label,
+  name,
   type = "text",
   placeholder,
   value,
@@ -22,6 +24,7 @@ export default function Input({
       </label>
 
       <input
+        name={name}
         type={type}
         placeholder={placeholder}
         value={value}
