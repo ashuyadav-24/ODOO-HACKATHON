@@ -114,6 +114,7 @@ async def update_asset(
         return await AssetService.update(
             asset_id,
             data,
+            current_user,
         )
 
     except ValueError as e:
@@ -130,7 +131,10 @@ async def delete_asset(
     user=Depends(asset_manager),
 ):
     try:
-        return await AssetService.delete(asset_id)
+        return await AssetService.delete(
+            asset_id,
+            current_user,
+        )
 
     except ValueError as e:
         raise HTTPException(

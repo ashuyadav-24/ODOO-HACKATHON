@@ -4,6 +4,7 @@ from app.models.allocation import Allocation
 from app.repositories.allocation_repository import AllocationRepository
 from app.repositories.asset_repository import AssetRepository
 from app.repositories.user_repository import UserRepository
+from app.utils.audit import log_audit
 
 
 class AllocationService:
@@ -49,6 +50,17 @@ class AllocationService:
             {
                 "status": "Allocated",
                 "updated_at": datetime.utcnow(),
+            },
+        )
+
+        await log_audit(
+            current_user=current_user,
+            action="ALLOCATE_ASSET",
+            module="Allocations",
+            reference_id=str(created["_id"]),
+            details={
+                "asset_id": created["asset_id"],
+                "user_id": created["user_id"],
             },
         )
 
@@ -112,7 +124,8 @@ class AllocationService:
     @staticmethod
     async def return_asset(
         allocation_id: str,
-        remarks: str | None = None,
+        remarks: str | None,
+        current_user,
     ):
 
         allocation = await AllocationRepository.get_by_id(
@@ -142,6 +155,17 @@ class AllocationService:
             },
         )
 
+        await log_audit(
+            current_user=current_user,
+            action="RETURN_ASSET",
+            module="Allocations",
+            reference_id=allocation_id,
+            details={
+                "asset_id": allocation["asset_id"],
+                "user_id": allocation["user_id"],
+            },
+        )
+
         updated["id"] = str(updated["_id"])
         del updated["_id"]
 
@@ -151,6 +175,7 @@ class AllocationService:
     async def update(
         allocation_id: str,
         data,
+        current_user,
     ):
 
         allocation = await AllocationRepository.get_by_id(
@@ -167,13 +192,27 @@ class AllocationService:
             update_data,
         )
 
+        await log_audit(
+            current_user=current_user,
+            action="UPDATE_ALLOCATION",
+            module="Allocations",
+            reference_id=allocation_id,
+            details={
+                "asset_id": updated["asset_id"],
+                "user_id": updated["user_id"],
+            },
+        )
+
         updated["id"] = str(updated["_id"])
         del updated["_id"]
 
         return updated
 
     @staticmethod
-    async def delete(allocation_id: str):
+    async def delete(
+        allocation_id: str,
+        current_user,
+    ):
 
         allocation = await AllocationRepository.get_by_id(
             allocation_id
@@ -182,7 +221,20 @@ class AllocationService:
         if allocation is None:
             raise ValueError("Allocation not found")
 
-        await AllocationRepository.delete(allocation_id)
+        await AllocationRepository.delete(
+            allocation_id
+        )
+
+        await log_audit(
+            current_user=current_user,
+            action="DELETE_ALLOCATION",
+            module="Allocations",
+            reference_id=allocation_id,
+            details={
+                "asset_id": allocation["asset_id"],
+                "user_id": allocation["user_id"],
+            },
+        )
 
         return {
             "message": "Allocation deleted successfully"
