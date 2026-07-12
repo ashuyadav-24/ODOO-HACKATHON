@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.core.dependencies import RoleChecker, get_current_user
+from app.core.dependencies import (
+    RoleChecker,
+    get_current_user,
+)
 from app.schemas.maintenance import (
     MaintenanceComplete,
     MaintenanceCreate,
@@ -95,6 +98,7 @@ async def update_maintenance(
         return await MaintenanceService.update(
             maintenance_id,
             data,
+            current_user,
         )
 
     except ValueError as e:
@@ -115,6 +119,7 @@ async def complete_maintenance(
         return await MaintenanceService.complete(
             maintenance_id,
             data.remarks,
+            current_user,
         )
 
     except ValueError as e:
@@ -133,6 +138,7 @@ async def delete_maintenance(
     try:
         return await MaintenanceService.delete(
             maintenance_id,
+            current_user,
         )
 
     except ValueError as e:

@@ -4,6 +4,7 @@ from app.models.maintenance import Maintenance
 from app.repositories.asset_repository import AssetRepository
 from app.repositories.maintenance_repository import MaintenanceRepository
 from app.repositories.user_repository import UserRepository
+from app.utils.audit import log_audit
 
 
 class MaintenanceService:
@@ -44,6 +45,17 @@ class MaintenanceService:
             },
         )
 
+        await log_audit(
+            current_user=current_user,
+            action="CREATE_MAINTENANCE",
+            module="Maintenance",
+            reference_id=str(created["_id"]),
+            details={
+                "asset_id": created["asset_id"],
+                "issue": created["issue"],
+            },
+        )
+
         created["id"] = str(created["_id"])
         del created["_id"]
 
@@ -61,14 +73,18 @@ class MaintenanceService:
         return maintenances
 
     @staticmethod
-    async def get_by_id(maintenance_id: str):
+    async def get_by_id(
+        maintenance_id: str,
+    ):
 
         maintenance = await MaintenanceRepository.get_by_id(
             maintenance_id
         )
 
         if maintenance is None:
-            raise ValueError("Maintenance record not found")
+            raise ValueError(
+                "Maintenance record not found"
+            )
 
         maintenance["id"] = str(maintenance["_id"])
         del maintenance["_id"]
@@ -105,6 +121,7 @@ class MaintenanceService:
     async def update(
         maintenance_id: str,
         data,
+        current_user,
     ):
 
         maintenance = await MaintenanceRepository.get_by_id(
@@ -112,7 +129,9 @@ class MaintenanceService:
         )
 
         if maintenance is None:
-            raise ValueError("Maintenance record not found")
+            raise ValueError(
+                "Maintenance record not found"
+            )
 
         if data.assigned_to is not None:
 
@@ -121,15 +140,30 @@ class MaintenanceService:
             )
 
             if technician is None:
-                raise ValueError("Assigned user not found")
+                raise ValueError(
+                    "Assigned user not found"
+                )
 
-        update_data = data.model_dump(exclude_unset=True)
+        update_data = data.model_dump(
+            exclude_unset=True
+        )
 
         update_data["updated_at"] = datetime.utcnow()
 
         updated = await MaintenanceRepository.update(
             maintenance_id,
             update_data,
+        )
+
+        await log_audit(
+            current_user=current_user,
+            action="UPDATE_MAINTENANCE",
+            module="Maintenance",
+            reference_id=maintenance_id,
+            details={
+                "asset_id": updated["asset_id"],
+                "status": updated["status"],
+            },
         )
 
         updated["id"] = str(updated["_id"])
@@ -141,6 +175,7 @@ class MaintenanceService:
     async def complete(
         maintenance_id: str,
         remarks: str | None = None,
+        current_user=None,
     ):
 
         maintenance = await MaintenanceRepository.get_by_id(
@@ -148,10 +183,14 @@ class MaintenanceService:
         )
 
         if maintenance is None:
-            raise ValueError("Maintenance record not found")
+            raise ValueError(
+                "Maintenance record not found"
+            )
 
         if maintenance["status"] == "Completed":
-            raise ValueError("Maintenance already completed")
+            raise ValueError(
+                "Maintenance already completed"
+            )
 
         updated = await MaintenanceRepository.update(
             maintenance_id,
@@ -171,23 +210,48 @@ class MaintenanceService:
             },
         )
 
+        await log_audit(
+            current_user=current_user,
+            action="COMPLETE_MAINTENANCE",
+            module="Maintenance",
+            reference_id=maintenance_id,
+            details={
+                "asset_id": maintenance["asset_id"],
+            },
+        )
+
         updated["id"] = str(updated["_id"])
         del updated["_id"]
 
         return updated
 
     @staticmethod
-    async def delete(maintenance_id: str):
+    async def delete(
+        maintenance_id: str,
+        current_user,
+    ):
 
         maintenance = await MaintenanceRepository.get_by_id(
             maintenance_id
         )
 
         if maintenance is None:
-            raise ValueError("Maintenance record not found")
+            raise ValueError(
+                "Maintenance record not found"
+            )
 
         await MaintenanceRepository.delete(
             maintenance_id
+        )
+
+        await log_audit(
+            current_user=current_user,
+            action="DELETE_MAINTENANCE",
+            module="Maintenance",
+            reference_id=maintenance_id,
+            details={
+                "asset_id": maintenance["asset_id"],
+            },
         )
 
         return {
